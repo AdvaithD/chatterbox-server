@@ -11,7 +11,7 @@ var port = process.env.PORT || 3000;
 // For now, since you're running this server on your local machine,
 // we'll have it listen on the IP address 127.0.0.1, which is a
 // special address that always refers to localhost.
-var ip = "127.0.0.1";
+//var ip = "127.0.0.1";
 
 
 
@@ -22,8 +22,8 @@ var ip = "127.0.0.1";
 //
 // After creating the server, we will tell it to listen on the given port and IP. */
 var server = http.createServer(handleRequest);
-console.log("Listening on http://" + ip + ":" + port);
-server.listen(port, ip);
+console.log("Listening on" + port);
+server.listen(port);
 
 // To start this server, run:
 //
