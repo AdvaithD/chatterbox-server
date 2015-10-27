@@ -1,6 +1,1 @@
-[
-{"username": "peekay", "text": "eyo foooo", "roomname": "beep", "createdAt": "2015-10-27T02:59:32.028Z"},
-{"username": "peekay", "text": "eyo foooo", "roomname": "beep", "createdAt": "2015-10-27T02:59:32.028Z"}
-]
-
-
+[{"username":"peekay","text":"hello","roomname":"beep","createdAt":"2015-10-27T17:54:39.592Z","objectId":3},{"username":"peekay/beep","text":"blahhhh","roomname":"beep","createdAt":"2015-10-27T17:08:08.620Z","objectId":2},{"username":"peekay","text":"jj","roomname":"beep","createdAt":"2015-10-27T04:04:17.931Z","objectId":1},{"username":"peekay","text":"eyo foooo","roomname":"beep","createdAt":"2015-10-25T02:59:32.028Z","objectID":"1"},{"username":"peekay","text":"eyo foooo","roomname":"beep","createdAt":"2015-10-25T02:59:28.028Z","objectID":"0"}]

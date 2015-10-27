@@ -1,45 +1,112 @@
 // import node module requirements 
 var fs = require('fs');
 var path = require('path');
+var url = require('url');
+
+var messages = [];
+
+var filePath = path.join(__dirname + '/bin/messages.json');
+
+// read file asynchronously
+fs.readFile(filePath, 'utf8', function(err, data) {
+if (err) { // handle error immediately 
+  return;
+}
+messages = JSON.parse(data);
+});
+
+// save all our messages to our file system
+var saveMessages = function() {
+  var messagesToSave = JSON.stringify(messages);
+  fs.writeFile(filePath, messagesToSave, 'utf8', function(err) {
+    if (err) {
+      return;
+    }
+  });
+};
+
+var GET = function(statusCode, headers, response) {
+  statusCode = 200;
+  headers['Content-Type'] = "application/json";
+  var responseData = JSON.stringify({results: messages});
+  response.writeHead(statusCode, headers);
+  response.end(responseData);
+};
+
+var POST = function(statusCode, headers, request, response) {
+  statusCode = 200;
+  var lastId = messages[0].objectId || 0;
+  headers['Content-Type'] = "application/json";
+  response.writeHead(statusCode, headers);
+  var body = '';
+  request.on('data', function(chunk) {
+    body += chunk;
+  });
+
+  request.on('end', function() {
+    var newMessage = JSON.parse(body);
+    newMessage.createdAt = new Date();
+    newMessage.objectId = lastId + 1;
+    messages.unshift(newMessage);
+    lastId++;
+    var postRes = JSON.stringify({
+      'createdAt': newMessage.createdAt,
+      'objectID': newMessage.objectId
+    });
+    saveMessages();
+    response.end(postRes);
+  });
+};
+
+function serveStaticPage(request, response) {
+    //get the resource name specified in request.url
+    var resource = url.parse(request.url).pathname;
+    console.log(resource);
+    //if request is root, serve index page
+    if (resource === '/') {
+        resource = '/client/2015-10-chatterbox-client/client/index.html';
+    } else {
+      resource = '/client/2015-10-chatterbox-client/client/' + resource;
+    }
+    // Read the file
+    fs.readFile( __dirname + resource, function( err, content) {
+        if (err) { // If there is an error, set the status code
+            response.writeHead( 404,
+                               {'Content-Type': 'text/plain; charset = UTF-8'});
+            response.end(err.message);
+        // determine correct header
+        } else {
+            var extension = {
+              '.html': 'text/html',
+              '.js' : 'application/javascript',
+              '.css': 'text/css'
+            };
+            var resourceExtension = path.extname(resource);
+            response.writeHead(200, {'Content-Type': extension[resourceExtension] });                      
+            response.end(content);
+        }
+    });   
+};
 
 // define request handler
 var requestHandler = function(request, response) {
   var statusCode;
   var headers = defaultCorsHeaders;
   // generate filepath for our directory with messages
-  var filePath = path.join(__dirname + '/bin/messages.json');
-  headers['Content-Type'] = "application/json";
+  if (request.method === 'OPTIONS') {
+    statusCode = 200;
+    response.writeHead(statusCode, headers);
+    response.end();
 
+  } else if (request.method === 'GET' && request.url === '/classes/messages') { 
   // determine GET vs. POST response and handle appropriately 
-  if (request.method === 'GET') {
-    statusCode = 200;
-
-    // read file asynchronously
-    fs.readFile(filePath, 'utf8', function(err, data) {
-      if (err) { // handle error immediately 
-        throw err;
-      }
-
-      response.writeHead(statusCode, headers);
-      data = processData(data);
-      response.end(JSON.stringify({results: data}));
-    });
-
+    GET(statusCode, headers, response);
   } else if (request.method === 'POST') {
-    statusCode = 200;
-    response.writeHead(statusCode, headers);
-    response.end();
-
+    POST(statusCode, headers, request, response);
   } else {
-    statusCode = 200;
-    response.writeHead(statusCode, headers);
-    response.end();
-  }
-
-  // helper function to parse and stringify data 
-  function processData(data) {
-    var parseData = JSON.parse(data);
-    return parseData;
+    console.log(request.method);
+    console.log(request.url);
+    serveStaticPage(request, response);
   }
 
 };
