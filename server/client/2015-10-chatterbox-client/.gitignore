@@ -32,9 +32,6 @@ npm-debug.log
 node_modules
 
 
-### Bower ###
-**/bower_components/
-
 
 ### PhPStorm ###
 .idea/
@@ -45,5 +42,3 @@ node_modules
 .floo
 .flooignore
 
-## API keys
-client/env/config.js
